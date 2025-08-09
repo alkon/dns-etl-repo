@@ -1,0 +1,13 @@
+name: shared
+description: Shared configuration across all environments
+
+config:
+  aws:region: "us-east-1"
+  vpc:cidr_block: "10.0.0.0/16"
+  vpc:enable_dns_support: true
+  vpc:enable_dns_hostnames: true
+
+# Optional shared secrets (can also be empty and populated separately)
+secrets:
+  oidc:client_id: ""
+  oidc:client_secret: ""

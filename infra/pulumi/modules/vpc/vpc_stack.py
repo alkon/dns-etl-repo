@@ -129,8 +129,8 @@ def run(env: str):
     pulumi.export("vpc_id", vpc_base.vpc.id)
     pulumi.export("vpc_cidr", vpc_base.vpc.cidr_block)
     pulumi.export("internet_gateway_id", vpc_base.igw.id)
-    pulumi.export("public_subnet_ids", public_subnets.subnet_ids)
-    pulumi.export("private_subnet_ids", private_subnets.subnet_ids)
+    pulumi.export("public_subnet_ids", [s.id for s in public_subnets.subnets])
+    pulumi.export("private_subnet_ids", [s.id for s in private_subnets.subnets])
     
     if nat_group:
         pulumi.export("nat_gateway_ids", nat_group.nat_gateway_ids)

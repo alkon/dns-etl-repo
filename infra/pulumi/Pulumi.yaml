@@ -1,0 +1,6 @@
+name: multi-env-infra
+runtime:
+  name: python
+  options:
+    virtualenv: .venv
+description: Multi-environment VPC/IAM/OIDC infra using Pulumi

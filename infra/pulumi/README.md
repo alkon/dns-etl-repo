@@ -14,7 +14,7 @@ The project follows Pulumi best practices with:
 
 ```
 infra/pulumi/
-├── __main__/__init__.py      # Main entry point with stack dispatcher
+├── __main__.py              # Main entry point with stack dispatcher
 ├── common/                   # Shared utilities
 │   └── stack_utils.py       # Dynamic stack routing
 ├── modules/                  # Infrastructure modules
@@ -50,46 +50,38 @@ The project allows you to deploy without NAT Gateways for development to save co
 ## Prerequisites
 
 1. **AWS Account and Credentials**
-   ```bash
+```bash
    aws configure --profile dev-profile
    aws configure --profile staging-profile
    aws configure --profile prod-profile
-   ```
+```
 
 2. **Pulumi CLI**
-   ```bash
-   # Install Pulumi CLI (if not already installed)
-   curl -fsSL https://get.pulumi.com | sh
-   
-   # Or via Homebrew on macOS
-   brew install pulumi
-   ```
+```bash
+   curl -fsSL https://get.pulumi.com | sh # Install Pulumi CLI (if not already installed)
+   brew install pulumi # Or via Homebrew on macOS
+```
 
 3. **Pulumi Account**
-   ```bash
-   # Login to Pulumi (uses local backend by default)
-   pulumi login
-   
-   # Or login to Pulumi Cloud
-   pulumi login https://app.pulumi.com
-   ```
+```bash
+   pulumi login # Login to Pulumi (uses local backend by default)
+   pulumi login https://app.pulumi.com # Or login to Pulumi Cloud
+```
 
 4. **Python 3.8+**
-   ```bash
+```bash
    python --version
-   ```
+```
 
 5. **Install Python Dependencies**
-   ```bash
+```bash
    cd infra/pulumi
    
-   # Create virtual environment (recommended)
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   python -m venv .venv # Create virtual environment (recommended)
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
    
-   # Install dependencies
-   pip install -r requirements.txt
-   ```
+   pip install -r requirements.txt # Install dependencies
+```
 
 ## Configuration Strategy
 
@@ -105,14 +97,10 @@ This project follows Pulumi best practices:
 ### 1. Setup Environment
 
 ```bash
-cd infra/pulumi
-
-# Create and activate virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install Python dependencies
-pip install -r requirements.txt
+   cd infra/pulumi
+   python -m venv .venv # Create and activate virtual environment
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   pip install -r requirements.txt # Install Python dependencies
 ```
 
 ### 2. Initialize a Stack
@@ -136,7 +124,7 @@ Default configurations are automatically applied based on environment:
 
 To see current configuration:
 ```bash
-pulumi config
+   pulumi config
 ```
 
 ### 5. Override Defaults (Optional)
@@ -234,21 +222,41 @@ The project includes a GitHub Actions workflow for automated deployments:
 ### Common Issues
 
 1. **AWS Profile Not Found**
-   ```bash
-   # Update the profile in Pulumi config
-   pulumi config set aws:profile your-profile-name
-   ```
+```bash
+# Update the profile in Pulumi config
+pulumi config set aws:profile your-profile-name
+```
 
 2. **Stack Already Exists**
-   ```bash
-      pulumi stack select dev-vpc # Select existing stack instead of creating
-   ```
+```bash
+   pulumi stack select dev-vpc # Select existing stack instead of creating
+```
 
 3. **Subnet CIDR Conflicts**
    - Ensure different CIDR blocks for each environment
    - Dev: 10.10.0.0/16
    - Staging: 10.20.0.0/16
    - Prod: 10.30.0.0/16
+
+4. **Passphrase Issues**
+
+If you see "passphrase must be set" or "incorrect passphrase" errors:
+
+**Option 1: Set the passphrase environment variable**
+```bash
+export PULUMI_CONFIG_PASSPHRASE="your-secure-passphrase"
+./scripts/run_stack.sh dev vpc
+```
+
+**Option 2: If you forgot the passphrase, recreate the stack**
+```bash
+pulumi stack rm dev-vpc --force
+./scripts/bootstrap_env.sh dev vpc
+pulumi config set aws:profile dev-profile
+./scripts/run_stack.sh dev vpc
+```
+
+When prompted for a new passphrase, choose something secure that you'll remember. This passphrase encrypts your stack's secrets and configuration.
 
 ## Next Steps
 

@@ -1,0 +1,87 @@
+name: Deploy VPC with Pulumi
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+      nat_strategy:
+        description: 'NAT Gateway strategy (WARNING: NAT costs ~$45/month per gateway)'
+        required: true
+        type: choice
+        options:
+          - none
+          - single
+          - multi-az
+        default: 'none'
+
+jobs:
+  deploy-vpc:
+    name: Deploy VPC to ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    
+    env:
+      PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+      AWS_REGION: us-east-1
+      STACK_NAME: ${{ inputs.environment }}-vpc
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Pulumi CLI
+        uses: pulumi/actions@v5
+
+      - name: Install Python dependencies
+        working-directory: ./infra/pulumi
+        run: |
+          python -m pip install --upgrade pip
+          pip install pulumi pulumi-aws
+
+      - name: Pulumi stack setup
+        working-directory: ./infra/pulumi
+        run: |
+          pulumi stack select ${{ env.STACK_NAME }} || pulumi stack init ${{ env.STACK_NAME }}
+          
+          # Update NAT strategy if different from config file
+          if [ "${{ inputs.nat_strategy }}" != "$(pulumi config get vpc:nat_strategy 2>/dev/null || echo 'none')" ]; then
+            echo "Updating NAT strategy to: ${{ inputs.nat_strategy }}"
+            pulumi config set vpc:nat_strategy ${{ inputs.nat_strategy }}
+          fi
+
+      - name: Preview changes
+        working-directory: ./infra/pulumi
+        run: |
+          echo "Preview of changes for stack: ${{ env.STACK_NAME }}"
+          pulumi preview --stack ${{ env.STACK_NAME }}
+
+      - name: Deploy VPC Stack
+        working-directory: ./infra/pulumi
+        run: |
+          echo "Deploying VPC for ${{ inputs.environment }} with NAT strategy: ${{ inputs.nat_strategy }}"
+          pulumi up --yes --stack ${{ env.STACK_NAME }}
+
+      - name: Show outputs
+        working-directory: ./infra/pulumi
+        run: |
+          echo "Stack outputs:"
+          pulumi stack output --stack ${{ env.STACK_NAME }}

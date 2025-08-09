@@ -1,0 +1,7 @@
+# envs/staging.yaml
+aws:profile: staging-profile
+vpc:name: staging-vpc
+vpc:subnet_count: 2
+
+oidc:cluster_name: staging-eks-cluster
+oidc:issuer_url: https://oidc.eks.us-east-1.amazonaws.com/id/stagingEXAMPLE

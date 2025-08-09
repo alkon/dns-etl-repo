@@ -1,0 +1,12 @@
+# envs/dev.yaml
+aws:
+  profile: dev-profile
+vpc:
+  name: dev-vpc
+  cidr_block: 10.10.0.0/16
+  subnet_count: 2
+
+oidc:
+  cluster_name: dev-eks
+  issuer_url: ""  # Leave empty until EKS created
+

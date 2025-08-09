@@ -1,0 +1,7 @@
+# envs/prod.yaml
+aws:profile: prod-profile
+vpc:name: prod-vpc
+vpc:subnet_count: 3
+
+oidc:cluster_name: prod-eks-cluster
+oidc:issuer_url: https://oidc.eks.us-east-1.amazonaws.com/id/prodEXAMPLE

@@ -1,0 +1,15 @@
+# Pulumi core
+pulumi>=3.0.0,<4.0.0
+pulumi_aws>=6.0.0,<7.0.0
+
+# Required for YAML parsing (used in config/defaults.py if needed)
+PyYAML>=6.0.0,<7.0.0
+
+# Pulumi's Python runtime dependencies (automatically installed with pulumi, but good to be explicit)
+dill>=0.3.0
+protobuf>=4.21.0
+grpcio>=1.51.0
+six>=1.12.0
+
+# Type hints support
+typing-extensions>=4.0.0
