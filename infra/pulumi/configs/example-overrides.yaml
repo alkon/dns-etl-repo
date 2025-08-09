@@ -1,0 +1,27 @@
+# Example configuration override file
+# This demonstrates when pulumi config set-all might be useful
+#
+# Use cases:
+# 1. Onboarding new team members with standard configs
+# 2. Applying temporary overrides for testing
+# 3. Migrating from old configuration systems
+#
+# Usage: ./scripts/apply-config.sh dev-vpc configs/example-overrides.yaml
+
+# AWS Configuration
+aws:profile: dev-profile
+aws:region: us-west-2  # Override default region
+
+# VPC Configuration Overrides
+vpc:cidr_block: 10.50.0.0/16  # Different CIDR for testing
+vpc:subnet_count: 3
+vpc:nat_strategy: single  # Enable NAT for this test
+
+# Feature flags
+vpc:enable_flow_logs: true
+vpc:enable_vpc_endpoints: true
+
+# Tags
+tags:project: dns-etl
+tags:cost-center: engineering
+tags:owner: platform-team
